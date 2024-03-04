@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Parent 1",
+    "parent1": 0,
+    "parent2": 0
+  },
+  {
+    "id": 2,
+    "name": "Parent 2",
+    "parent1": 0,
+    "parent2": 0
+  },
+  {
+    "id": 3,
+    "name": "Child 1",
+    "parent1": 1,
+    "parent2": 2
+  },
+  {
+    "id": 4,
+    "name": "Child 2",
+    "parent1": 1,
+    "parent2": 2
+  },
+  {
+    "id": 5,
+    "name": "Child 3",
+    "parent1": 1,
+    "parent2": 2
+  },
+  {
+    "id": 6,
+    "name": "Parent 3",
+    "parent1": 0,
+    "parent2": 0
+  },
+  {
+    "id": 7,
+    "name": "Parent 4",
+    "parent1": 0,
+    "parent2": 0
+  },
+  {
+    "id": 8,
+    "name": "Child 4",
+    "parent1": 6,
+    "parent2": 7
+  },
+  {
+    "id": 9,
+    "name": "Child 5",
+    "parent1": 6,
+    "parent2": 7
+  },
+  {
+    "id": 10,
+    "name": "Grandchild 1",
+    "parent1": 3,
+    "parent2": 8
+  }
+]
