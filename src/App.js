@@ -18,12 +18,17 @@ const MemberForm = ({ familyData, setFamilyData }) => {
     setParent2Id(val);
   };
 
+  const resolveName = (id) => {
+    const person = familyData.find((member) => member.id === id);
+    return person ? person.name : 'Unknown';
+  };
+
   const handleEdit = (id) => {
     const selectedRecord = familyData.find(member => member.id === id);
     if (selectedRecord) {
       setPersonName(selectedRecord.name);
-      setParent1Id(selectedRecord.parent1);
-      setParent2Id(selectedRecord.parent2);
+      setParent1Id(selectedRecord.parents[0]);
+      setParent2Id(selectedRecord.parents[1]);
       setSelectedRecordId(id);
       setMode('update');
     }
@@ -35,8 +40,7 @@ const MemberForm = ({ familyData, setFamilyData }) => {
       const newPerson = {
         id: familyData.length + 1,
         name: personName,
-        parent1: parent1Id,
-        parent2: parent2Id
+        parents: [parent1Id, parent2Id]
       };
       setFamilyData([...familyData, newPerson]);
     } else if (mode === 'update') {
@@ -45,8 +49,7 @@ const MemberForm = ({ familyData, setFamilyData }) => {
           return {
             ...member,
             name: personName,
-            parent1: parent1Id,
-            parent2: parent2Id
+            parents: [parent1Id, parent2Id]
           };
         }
         return member;
@@ -66,11 +69,6 @@ const MemberForm = ({ familyData, setFamilyData }) => {
     setParent2Id(0);
     setMode('add');
     setSelectedRecordId(null);
-  };
-
-  const resolveName = (id) => {
-    const person = familyData.find((member) => member.id === id);
-    return person ? person.name : 'Unknown';
   };
 
   const handleExport = () => {
@@ -129,8 +127,9 @@ const MemberForm = ({ familyData, setFamilyData }) => {
                 <h5 className="card-title">{member.name}</h5>
               </div>
               <div className="card-body">
-                <p className="card-text">Parent 1: {resolveName(member.parent1)}</p>
-                <p className="card-text">Parent 2: {resolveName(member.parent2)}</p>
+                {member.parents.map((parent, index) => (
+                  <p key={index} className="card-text">Parent {index + 1}: {resolveName(parent)}</p>
+                ))}
               </div>
               <div className="card-footer">
                 <button onClick={() => handleEdit(member.id)} className="btn btn-link">Edit</button>
@@ -144,32 +143,39 @@ const MemberForm = ({ familyData, setFamilyData }) => {
   );
 };
 
-const FamilyMember = ({ node: member }) => (
+const MemberCard = ({ name, parents }) => (
   <div className="tree-node">
     <div className="card node-content">
+      <div className="card-header">
+        <h5 className="card-title">{name}</h5>
+      </div>
       <div className="card-body">
-        <h5 className="card-title">Name: {member.name}</h5>
-        <p className="card-text">Mother: {member.parent1}</p>
-        <p className="card-text">Father: {member.parent2}</p>
+        <p className="card-text">Parent 1: {parents[0]}</p>
+        <p className="card-text">Parent 2: {parents[1]}</p>
       </div>
     </div>
-    {member.children && (
-      <div className="children">
-        {member.children.map(child => (
-          <FamilyMember key={child.id} node={child} />
-        ))}
-      </div>
-    )}
   </div>
 );
 
-const FamilyTree = ({ data }) => {
+const FamilyView = ({ data }) => {
+
+  const getParentNames = (parentIds) => {
+    return parentIds.map(parentId => {
+      if (parentId === 0) {
+        return 'Unknown';
+      } else {
+        const parent = data.find(member => member.id === parentId);
+        return parent ? parent.name : 'Invalid';
+      }
+    });
+  };
+  
   return (
     <div className='mt-4'>
       <h1>Dynamic Family Tree</h1>
       <div className="tree">
         {data.map(member => (
-          <FamilyMember key={member.id} node={member} />
+          <MemberCard key={member.id} name={member.name} parents={getParentNames(member.parents)} />
         ))}
       </div>
     </div>
@@ -195,11 +201,11 @@ const App = () => {
     <div className="container">
       <div className="mt-4 mb-4">
         <button onClick={() => handleButtonClick('memberForm')} className={`btn ${currentPage === 'memberForm' ? 'btn-primary' : 'btn-secondary'}`}>Family Management</button>
-        <button onClick={() => handleButtonClick('treeView')} className={`btn ${currentPage === 'treeView' ? 'btn-primary' : 'btn-secondary'}`}>Family Tree View</button>
+        <button onClick={() => handleButtonClick('familyView')} className={`btn ${currentPage === 'familyView' ? 'btn-primary' : 'btn-secondary'}`}>Family Tree View</button>
       </div>
       <div>
         {currentPage === 'memberForm' && <MemberForm familyData={familyData} setFamilyData={setFamilyData} />}
-        {currentPage === 'treeView' && <FamilyTree data={familyData} />}
+        {currentPage === 'familyView' && <FamilyView data={familyData} />}
       </div>
     </div>
   )
