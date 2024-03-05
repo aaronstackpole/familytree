@@ -3,42 +3,49 @@
     "id": 1,
     "name": "Aaron",
     "parent1": 5,
-    "parent2": 6
+    "parent2": 6,
+    "parents": [5, 6]
   },
   {
     "id": 2,
     "name": "Alisha",
     "parent1": 7,
-    "parent2": 0
+    "parent2": 0,
+    "parents": [7]
   },
   {
     "id": 3,
     "name": "Ty",
     "parent1": 1,
-    "parent2": 2
+    "parent2": 2,
+    "parents": [1, 2]
   },
   {
     "id": 4,
     "name": "Jenna",
     "parent1": 1,
-    "parent2": 2
+    "parent2": 2,
+    "parents": [1, 2]
   },
   {
     "id": 5,
     "name": "Bill",
     "parent1": 0,
-    "parent2": 0
+    "parent2": 0,
+    "parents": []
   },
   {
     "id": 6,
     "name": "Starla",
     "parent1": 0,
-    "parent2": 0
+    "parent2": 0,
+    "parents": []
   },
   {
     "id": 7,
     "name": "Randy",
     "parent1": 0,
-    "parent2": 0
+    "parent2": 0,
+    "parents": []
   }
 ]

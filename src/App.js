@@ -60,6 +60,14 @@ const MemberForm = ({ familyData, setFamilyData }) => {
     setParent2Id(0);
   };
 
+  const handleCancel = () => {
+    setPersonName(''); 
+    setParent1Id(0);
+    setParent2Id(0);
+    setMode('add');
+    setSelectedRecordId(null);
+  };
+
   const resolveName = (id) => {
     const person = familyData.find((member) => member.id === id);
     return person ? person.name : 'Unknown';
@@ -106,6 +114,9 @@ const MemberForm = ({ familyData, setFamilyData }) => {
           </div>
           <div className="form-group">
             <button type="submit" className="btn btn-primary">{mode === 'add' ? 'Add Member' : 'Update Member'}</button>
+            {mode === 'update' && (
+              <button type="button" className="btn btn-secondary ml-2" onClick={handleCancel}>Cancel</button>
+            )}
           </div>
         </form>
       </div>
