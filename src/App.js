@@ -1,38 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-const AddMemberForm = ({ familyData, setFamilyData }) => {
-  const [personName, setPersonName] = useState('');
-  const [parent1Id, setParent1Id] = useState(0);
-  const [parent2Id, setParent2Id] = useState(0);
+const MemberForm = ({ familyData, setFamilyData }) => {
+  const [personName, setPersonName] = useState(''); // Add state to track family member name
+  const [parent1Id, setParent1Id] = useState(0); // Add state to track id of Parent 1
+  const [parent2Id, setParent2Id] = useState(0); // Add state to track id of Parent 2
+  const [mode, setMode] = useState('add'); // Add state to track mode: 'add' or 'update'
+  const [selectedRecordId, setSelectedRecordId] = useState(null); // Add state to track selected record for update
 
-  const resolveName = (id) => {
-    const person = familyData.find((member) => member.id === id);
-    return person ? person.name : 'Unknown';
-  };
-
-  const handleExport = () => {
-    const jsonDataString = JSON.stringify(familyData, null, 2);
-    console.log(jsonDataString);
+  const handleEdit = (id) => {
+    const selectedRecord = familyData.find(member => member.id === id);
+    if (selectedRecord) {
+      setPersonName(selectedRecord.name);
+      setParent1Id(selectedRecord.parent1);
+      setParent2Id(selectedRecord.parent2);
+      setSelectedRecordId(id);
+      setMode('update'); // Set mode to update
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newPerson = {
-      id: familyData.length + 1,
-      name: personName,
-      parent1: parent1Id,
-      parent2: parent2Id
-    };
-    setFamilyData([...familyData, newPerson]);
-    setPersonName('');
-    setParent1Id(0);
-    setParent2Id(0);
+    if (mode === 'add') {
+      const newPerson = {
+        id: familyData.length + 1,
+        name: personName,
+        parent1: parent1Id,
+        parent2: parent2Id
+      };
+      setFamilyData([...familyData, newPerson]);
+    } else if (mode === 'update') {
+      const updatedFamilyData = familyData.map(member => {
+        if (member.id === selectedRecordId) {
+          return {
+            ...member,
+            name: personName,
+            parent1: parent1Id,
+            parent2: parent2Id
+          };
+        }
+        return member;
+      });
+      setFamilyData(updatedFamilyData);
+      setMode('add'); // After update, switch back to add mode
+      setSelectedRecordId(null); // Reset selected record id
+    }
+    setPersonName(''); // Reset Name field
+    setParent1Id(0); // Reset Parent 1 selection
+    setParent2Id(0); // Reset Parent 2 selection
   };
 
-  return (
-    <div>
+  const MemberDataSection = () => (
+    <>
       <h2>Member Data</h2>
+      <h6>{mode === 'add' ? 'Add Member' : 'Update Member'}</h6>
       <div className="form-container">
         <form onSubmit={handleSubmit} className="mt-4">
           <div className="form-group">
@@ -64,26 +85,53 @@ const AddMemberForm = ({ familyData, setFamilyData }) => {
             </select>
           </div>
           <div className="form-group">
-            <button type="submit" className="btn btn-primary">Add Person</button>
+            <button type="submit" className="btn btn-primary">{mode === 'add' ? 'Add Member' : 'Update Member'}</button>
           </div>
         </form>
       </div>
+    </>
+  );
+
+  const resolveName = (id) => {
+    const person = familyData.find((member) => member.id === id);
+    return person ? person.name : 'Unknown';
+  };
+
+  const handleExport = () => {
+    const jsonDataString = JSON.stringify(familyData, null, 2);
+    console.log(jsonDataString);
+  };
+
+  const FamilyDataSection = () => (
+    <>
       <h2>Family Data</h2>
       <div className="row">
         {familyData.map((member) => (
           <div key={member.id} className="col-md-4 mb-3">
             <div className="card">
-              <div className="card-body">
+              <div className="card-header">
                 <h5 className="card-title">{member.name}</h5>
+              </div>
+              <div className="card-body">
                 <p className="card-text">Parent 1: {resolveName(member.parent1)}</p>
                 <p className="card-text">Parent 2: {resolveName(member.parent2)}</p>
+              </div>
+              <div className="card-footer">
+                <button onClick={() => handleEdit(member.id)} className="btn btn-link">Edit</button>
               </div>
             </div>
           </div>
         ))}
       </div>
       <button onClick={handleExport} className="btn btn-primary">Export JSON</button>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <MemberDataSection />
+      <FamilyDataSection />
+    </>
   );
 };
 
@@ -141,7 +189,7 @@ const App = () => {
         <button onClick={() => handleButtonClick('treeView')} className={`btn ${currentPage === 'treeView' ? 'btn-primary' : 'btn-secondary'}`}>View Tree</button>
       </div>
       <div>
-        {currentPage === 'addMemberForm' && <AddMemberForm familyData={familyData} setFamilyData={setFamilyData} />}
+        {currentPage === 'addMemberForm' && <MemberForm familyData={familyData} setFamilyData={setFamilyData} />}
         {currentPage === 'treeView' && <FamilyTree data={familyData} />}
       </div>
     </div>
