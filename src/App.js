@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const MemberForm = ({ familyData, setFamilyData }) => {
-  const [personName, setPersonName] = useState(''); // Add state to track family member name
-  const [parent1Id, setParent1Id] = useState(0); // Add state to track id of Parent 1
-  const [parent2Id, setParent2Id] = useState(0); // Add state to track id of Parent 2
-  const [mode, setMode] = useState('add'); // Add state to track mode: 'add' or 'update'
-  const [selectedRecordId, setSelectedRecordId] = useState(null); // Add state to track selected record for update
+  const [personName, setPersonName] = useState('');
+  const [parent1Id, setParent1Id] = useState(0);
+  const [parent2Id, setParent2Id] = useState(0);
+  const [mode, setMode] = useState('add');
+  const [selectedRecordId, setSelectedRecordId] = useState(null);
+
+  const parseParent1Id = (id) => {
+    const val = parseInt(id);
+    setParent1Id(val);
+  };
+
+  const parseParent2Id = (id) => {
+    const val = parseInt(id);
+    setParent2Id(val);
+  };
 
   const handleEdit = (id) => {
     const selectedRecord = familyData.find(member => member.id === id);
@@ -15,7 +25,7 @@ const MemberForm = ({ familyData, setFamilyData }) => {
       setParent1Id(selectedRecord.parent1);
       setParent2Id(selectedRecord.parent2);
       setSelectedRecordId(id);
-      setMode('update'); // Set mode to update
+      setMode('update');
     }
   };
 
@@ -42,15 +52,25 @@ const MemberForm = ({ familyData, setFamilyData }) => {
         return member;
       });
       setFamilyData(updatedFamilyData);
-      setMode('add'); // After update, switch back to add mode
-      setSelectedRecordId(null); // Reset selected record id
+      setMode('add');
+      setSelectedRecordId(null);
     }
-    setPersonName(''); // Reset Name field
-    setParent1Id(0); // Reset Parent 1 selection
-    setParent2Id(0); // Reset Parent 2 selection
+    setPersonName(''); 
+    setParent1Id(0);
+    setParent2Id(0);
   };
 
-  const MemberDataSection = () => (
+  const resolveName = (id) => {
+    const person = familyData.find((member) => member.id === id);
+    return person ? person.name : 'Unknown';
+  };
+
+  const handleExport = () => {
+    const jsonDataString = JSON.stringify(familyData, null, 2);
+    console.log(jsonDataString);
+  };
+
+  return (
     <>
       <h2>Member Data</h2>
       <h6>{mode === 'add' ? 'Add Member' : 'Update Member'}</h6>
@@ -66,7 +86,7 @@ const MemberForm = ({ familyData, setFamilyData }) => {
           </div>
           <div className="form-group">
             <label htmlFor="parent1">Parent 1's Name:</label>
-            <select className="form-control" id="parent1" value={parent1Id} onChange={(e) => setParent1Id(parseInt(e.target.value))}>
+            <select className="form-control" id="parent1" value={parent1Id} onChange={(e) => parseParent1Id(e.target.value)}>
               <option value="">Select Parent 1</option>
               {familyData.map((member) => (
                 <option key={member.id} value={member.id}>
@@ -75,7 +95,7 @@ const MemberForm = ({ familyData, setFamilyData }) => {
               ))}
             </select>
             <label htmlFor="parent2">Parent 2's Name:</label>
-            <select className="form-control" id="parent2" value={parent2Id} onChange={(e) => setParent2Id(parseInt(e.target.value))}>
+            <select className="form-control" id="parent2" value={parent2Id} onChange={(e) => parseParent2Id(e.target.value)}>
               <option value="">Select Parent 2</option>
               {familyData.map((member) => (
                 <option key={member.id} value={member.id}>
@@ -89,21 +109,6 @@ const MemberForm = ({ familyData, setFamilyData }) => {
           </div>
         </form>
       </div>
-    </>
-  );
-
-  const resolveName = (id) => {
-    const person = familyData.find((member) => member.id === id);
-    return person ? person.name : 'Unknown';
-  };
-
-  const handleExport = () => {
-    const jsonDataString = JSON.stringify(familyData, null, 2);
-    console.log(jsonDataString);
-  };
-
-  const FamilyDataSection = () => (
-    <>
       <h2>Family Data</h2>
       <div className="row">
         {familyData.map((member) => (
@@ -124,13 +129,6 @@ const MemberForm = ({ familyData, setFamilyData }) => {
         ))}
       </div>
       <button onClick={handleExport} className="btn btn-primary">Export JSON</button>
-    </>
-  );
-
-  return (
-    <>
-      <MemberDataSection />
-      <FamilyDataSection />
     </>
   );
 };
@@ -167,7 +165,7 @@ const FamilyTree = ({ data }) => {
 )};
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState('addMemberForm');
+  const [currentPage, setCurrentPage] = useState('memberForm');
   const [familyData, setFamilyData] = useState([]);
 
   // Load testing JSON from public/family.json
@@ -185,11 +183,11 @@ const App = () => {
   return (
     <div className="container">
       <div className="mt-4 mb-4">
-        <button onClick={() => handleButtonClick('addMemberForm')} className={`btn ${currentPage === 'addMemberForm' ? 'btn-primary' : 'btn-secondary'}`}>Add Member</button>
-        <button onClick={() => handleButtonClick('treeView')} className={`btn ${currentPage === 'treeView' ? 'btn-primary' : 'btn-secondary'}`}>View Tree</button>
+        <button onClick={() => handleButtonClick('memberForm')} className={`btn ${currentPage === 'memberForm' ? 'btn-primary' : 'btn-secondary'}`}>Family Management</button>
+        <button onClick={() => handleButtonClick('treeView')} className={`btn ${currentPage === 'treeView' ? 'btn-primary' : 'btn-secondary'}`}>Family Tree View</button>
       </div>
       <div>
-        {currentPage === 'addMemberForm' && <MemberForm familyData={familyData} setFamilyData={setFamilyData} />}
+        {currentPage === 'memberForm' && <MemberForm familyData={familyData} setFamilyData={setFamilyData} />}
         {currentPage === 'treeView' && <FamilyTree data={familyData} />}
       </div>
     </div>
