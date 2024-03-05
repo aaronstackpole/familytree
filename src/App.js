@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+//(c) ADS 2024
+
 const MemberForm = ({ familyData, setFamilyData }) => {
   const [personName, setPersonName] = useState('');
   const [parent1Id, setParent1Id] = useState(0);
