@@ -6,68 +6,83 @@ const AddMemberForm = ({ familyData, setFamilyData }) => {
   const [parent1Id, setParent1Id] = useState(0);
   const [parent2Id, setParent2Id] = useState(0);
 
-  const handleAddPerson = (e) => {
-    e.preventDefault();
+  const resolveName = (id) => {
+    const person = familyData.find((member) => member.id === id);
+    return person ? person.name : 'Unknown';
+  };
 
-    // Create a new FamilyMember data
+  const handleExport = () => {
+    const jsonDataString = JSON.stringify(familyData, null, 2);
+    console.log(jsonDataString);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const newPerson = {
       id: familyData.length + 1,
       name: personName,
-      mother: parent1Id,
-      father: parent2Id
+      parent1: parent1Id,
+      parent2: parent2Id
     };
-
-    // Append FamilyMember data
     setFamilyData([...familyData, newPerson]);
-
-    // Reset form variables
     setPersonName('');
     setParent1Id(0);
     setParent2Id(0);
   };
 
-  const handleSaveJson = () => {
-    const jsonDataString = JSON.stringify(familyData, null, 2);
-    console.log(jsonDataString);
-  };
-
   return (
     <div>
-      <form onSubmit={handleAddPerson} className="mt-4">
-        <div className="form-group">
-          <label htmlFor="name">Person's Name:</label>
-          <input type="text" className="form-control" id="name"
-            value={personName} onChange={(e) => setPersonName(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label htmlFor="parent1">Parent 1's Name:</label>
-          <select className="form-control" id="parent1" value={parent1Id} onChange={(e) => setParent1Id(e.target.value)}>
-            <option value="">Select Parent 1</option>
-            {familyData.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.id}: {member.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="parent2">Parent 2's Name:</label>
-          <select className="form-control" id="parent2" value={parent2Id} onChange={(e) => setParent2Id(e.target.value)}>
-            <option value="">Select Parent 2</option>
-            {familyData.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.id}: {member.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <button type="submit" className="btn btn-primary">Add Person</button>
-        </div>
-      </form>
-      <h2>Current Family Data:</h2>
-      <pre>{JSON.stringify(familyData, null, 2)}</pre>
-      <button onClick={handleSaveJson} className="btn btn-primary">Save JSON</button>
+      <h2>Member Data</h2>
+      <div className="form-container">
+        <form onSubmit={handleSubmit} className="mt-4">
+          <div className="form-group">
+            <label htmlFor="name">Person's Name:</label>
+            <input type="text" className="form-control" id="name"
+              value={personName} onChange={(e) => setPersonName(e.target.value)} />
+            <label htmlFor="id">Record ID:</label>
+            <input type="text" className="form-control" id="id"
+              value={familyData.length + 1} disabled />
+          </div>
+          <div className="form-group">
+            <label htmlFor="parent1">Parent 1's Name:</label>
+            <select className="form-control" id="parent1" value={parent1Id} onChange={(e) => setParent1Id(parseInt(e.target.value))}>
+              <option value="">Select Parent 1</option>
+              {familyData.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.id}: {member.name}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="parent2">Parent 2's Name:</label>
+            <select className="form-control" id="parent2" value={parent2Id} onChange={(e) => setParent2Id(parseInt(e.target.value))}>
+              <option value="">Select Parent 2</option>
+              {familyData.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.id}: {member.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <button type="submit" className="btn btn-primary">Add Person</button>
+          </div>
+        </form>
+      </div>
+      <h2>Family Data</h2>
+      <div className="row">
+        {familyData.map((member) => (
+          <div key={member.id} className="col-md-4 mb-3">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">{member.name}</h5>
+                <p className="card-text">Parent 1: {resolveName(member.parent1)}</p>
+                <p className="card-text">Parent 2: {resolveName(member.parent2)}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={handleExport} className="btn btn-primary">Export JSON</button>
     </div>
   );
 };

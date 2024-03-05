@@ -12,18 +12,13 @@ body {
     background-color: #222; */
 }
 
-/* p {
-  border: 0px;
-  padding: 0px;
-  margin: 0px;
-} */
+.form-group {
+  padding-bottom: 15px;
+}
 
-/* ul {
-  list-style-type: none;
-  border: 0px;
-  padding: 0px;
-  margin: 0px;
-} */
+.form-container {
+  width: 50%;
+}
 
 .tree {
     display: flex;
