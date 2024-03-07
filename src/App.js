@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-//(c) ADS 2024
-
 const MemberForm = ({ familyData, setFamilyData }) => {
   const [personName, setPersonName] = useState('');
   const [parent1Id, setParent1Id] = useState(0);
@@ -159,24 +157,65 @@ const MemberCard = ({ name, parents }) => (
   </div>
 );
 
-const FamilyView = ({ data }) => {
+const FamilyView = ({ familyData, rootId }) => {
 
   const getParentNames = (parentIds) => {
     return parentIds.map(parentId => {
       if (parentId === 0) {
         return 'Unknown';
       } else {
-        const parent = data.find(member => member.id === parentId);
+        const parent = familyData.find(member => member.id === parentId);
         return parent ? parent.name : 'Invalid';
       }
     });
   };
   
+  const getAncestors = (member, generation) => {
+    if (generation <= -4 || member.parents.length === 0) return [];
+      const ancestors = member.parents.flatMap(parentId => {
+        if (parentId === 0) return [];
+
+        const parent = familyData.find(m => m.id === parentId);
+        if (!parent) return [];
+        parent.generation = generation;
+        return [parent, ...getAncestors(parent, generation - 1)];
+      });
+    return ancestors;
+  };
+  
+  const getDescendants = (member, generation) => {
+    if (generation >= 4 || member.parents.length === 0) return [];
+
+    const descendants = familyData.reduce((children, person) => {
+      if (person.parents.includes(member.id)) {
+        person.generation = generation;
+        children.push(person);
+        children.push(...getDescendants(person, generation + 1));
+      }
+      return children;
+    }, []);
+    
+    return descendants;
+  };
+    
+  const getFamilyMembers = (rootId) => {
+    const rootMember = familyData.find(member => member.id === rootId);
+    if (!rootMember) return []; // Return empty array if rootId is not found
+  
+    const ancestors = getAncestors(rootMember, 0);
+    const descendants = getDescendants(rootMember, 0);
+    
+    return [rootMember, ...ancestors, ...descendants];
+  };
+
+  // Hard code list root id: 1 for now
+  const familyMembers = getFamilyMembers(rootId);
+  
   return (
     <div className='mt-4'>
       <h1>Dynamic Family Tree</h1>
       <div className="tree">
-        {data.map(member => (
+        {familyMembers.map(member => (
           <MemberCard key={member.id} name={member.name} parents={getParentNames(member.parents)} />
         ))}
       </div>
@@ -207,7 +246,7 @@ const App = () => {
       </div>
       <div>
         {currentPage === 'memberForm' && <MemberForm familyData={familyData} setFamilyData={setFamilyData} />}
-        {currentPage === 'familyView' && <FamilyView data={familyData} />}
+        {currentPage === 'familyView' && <FamilyView familyData={familyData} rootId={1} />}
       </div>
     </div>
   )
