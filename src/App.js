@@ -145,7 +145,7 @@ const MemberForm = ({ familyData, setFamilyData }) => {
 
 const MemberCard = ({ name, parents }) => (
   <div className="tree-node">
-    <div className="card node-content">
+    <div className="card card-container">
       <div className="card-header">
         <h5 className="card-title">{name}</h5>
       </div>
@@ -202,25 +202,35 @@ const FamilyView = ({ familyData, rootId }) => {
     const rootMember = familyData.find(member => member.id === rootId);
     if (!rootMember) return []; // Return empty array if rootId is not found
   
-    const ancestors = getAncestors(rootMember, 0);
-    const descendants = getDescendants(rootMember, 0);
+    rootMember.generation = 0;
+    const ancestors = getAncestors(rootMember, -1);
+    const descendants = getDescendants(rootMember, 1);
     
     return [rootMember, ...ancestors, ...descendants];
   };
 
-  // Hard code list root id: 1 for now
   const familyMembers = getFamilyMembers(rootId);
-  
+  const jsonString = JSON.stringify(familyMembers, null, 0);
+    
   return (
     <div className='mt-4'>
+      {jsonString}
       <h1>Dynamic Family Tree</h1>
       <div className="tree">
-        {familyMembers.map(member => (
-          <MemberCard key={member.id} name={member.name} parents={getParentNames(member.parents)} />
+        { /* Group family members by generation */ }
+        {[-3, -2, -1, 0, 1, 2, 3].map(generation => (
+          <div key={generation} className="row">
+            {familyMembers
+              .filter(member => member.generation === generation)
+              .map(member => (
+                <MemberCard key={member.id} name={member.name} parents={getParentNames(member.parents)} />
+              ))}
+          </div>
         ))}
       </div>
     </div>
-)};
+  )
+};
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('memberForm');
